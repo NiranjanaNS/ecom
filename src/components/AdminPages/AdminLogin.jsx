@@ -12,9 +12,9 @@ const AdminLogin = () => {
       console.log('login worked');
       const datatosent = { email, password };
       const res = await Axios.post('/admin/login', datatosent);
-      console.log(res.data); // log response from server
+      console.log(res.data); 
       if(res.data.success) {
-        navigate('/admin/home')
+        navigate('/admin/')
       }
     } catch (err) {
       console.error('Login failed:', err.response?.data || err.message);

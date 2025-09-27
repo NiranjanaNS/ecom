@@ -5,10 +5,7 @@ import Axios from "../../Axios";
 const OrderStatus = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 10;
 
-  // Fetch orders and sort newest first
   const getOrders = async () => {
     try {
       setLoading(true);
@@ -28,7 +25,6 @@ const OrderStatus = () => {
     getOrders();
   }, []);
 
-  // Allowed status transitions
   const getAllowedStatuses = (currentStatus) => {
     switch (currentStatus) {
       case "pending":
@@ -44,7 +40,6 @@ const OrderStatus = () => {
     }
   };
 
-  // Update status
   const updateStatus = async (orderId, newStatus, currentStatus) => {
     if (newStatus === currentStatus) return;
     try {
@@ -55,7 +50,6 @@ const OrderStatus = () => {
     }
   };
 
-  // Delete order if cancelled
   const deleteOrder = async (orderId, status) => {
     if (status !== "cancelled") return;
     try {
@@ -66,14 +60,7 @@ const OrderStatus = () => {
     }
   };
 
-  // Pagination
-  const indexOfLastOrder = currentPage * ordersPerPage;
-  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
-  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
-  const totalPages = Math.ceil(orders.length / ordersPerPage);
-
-  // Flatten orders for table
-  const rows = currentOrders.flatMap(order =>
+  const rows = orders.flatMap(order =>
     (order.items || []).map((item, index) => ({ order, item, index }))
   );
 
@@ -149,25 +136,6 @@ const OrderStatus = () => {
               )}
             </tbody>
           </table>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-4 space-x-2">
-              {[...Array(totalPages)].map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentPage(index + 1)}
-                  className={`px-3 py-1 rounded ${
-                    currentPage === index + 1
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </AdminLayout>

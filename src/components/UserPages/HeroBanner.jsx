@@ -1,40 +1,44 @@
-import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+// Import images
+import img1 from '../../assets/c6bb8ead-ef56-4206-914f-f307877ac55a.jpg';
+import img2 from '../../assets/c6bb8ead-ef56-4206-914f-f307877ac55a.jpg';
+import img3 from '../../assets/164bcf42-ff2f-454a-b671-02b8aa6eb433.jpg';
+
 const HeroBanner = () => {
   const settings = {
-    centerMode: true,
-    centerPadding: "200px",
     slidesToShow: 1,
+    slidesToScroll: 1,
     infinite: true,
-    speed: 600,
     arrows: true,
     dots: true,
-    responsive: [
-      { breakpoint: 1280, settings: { centerPadding: "100px" } },
-      { breakpoint: 1024, settings: { centerPadding: "50px" } },
-      { breakpoint: 768, settings: { centerPadding: "20px" } },
-    ],
+    autoplay: true,
+    autoplaySpeed: 4000,
   };
 
   const images = [
-    "https://picsum.photos/1200/400?random=1",
-    "https://picsum.photos/1200/400?random=2",
-    "https://picsum.photos/1200/400?random=3",
+    { url: img1, text: "Big Sale Today!" },
+    { url: img2, text: "Best Products for You!" },
+    { url: img3, text: "Exclusive Deals!" },
   ];
 
   return (
-    <div className="w-full py-6 bg-gray-100">
-      <Slider {...settings}>
-        {images.map((url, id) => (
-          <div key={id} className="px-4">
-            <img
-              src={url}
-              alt={`banner-${id}`}
-              className="w-full h-80 object-cover rounded-lg shadow-md"
-            />
+    <div className="w-full py-2 bg-gray-100 flex justify-center">
+      <Slider {...settings} className="w-full">
+        {images.map((img, id) => (
+          <div key={id} className="flex justify-center ">
+            <div className="w-full flex justify-center items-center bg-gray-300 p-4 rounded-lg shadow-md overflow-hidden relative">
+              <img
+                src={img.url}
+                alt={`banner-${id}`}
+                className="w-full h-max max-w-3xl rounded-2xl object-cover"
+              />
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-3xl font-bold text-center">
+                {img.text}
+              </div>
+            </div>
           </div>
         ))}
       </Slider>

@@ -1,40 +1,39 @@
-import React, { useEffect, useState } from "react";
+// src/components/UserPages/Category.jsx
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Axios from "../../Axios";
-import { useNavigate } from "react-router-dom";
+import UserLayout from "../Layout/UserLayout";
 
 const Category = () => {
   const [categories, setCategories] = useState([]);
-  const navigate = useNavigate();
-
-  const getCat = async () => {
-    const cat = await Axios.get("/categories");
-    setCategories(cat.data);
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCat();
+    Axios.get("/categories")
+      .then((res) => setCategories(res.data || []))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   }, []);
 
+  if (loading) return <p className="text-center p-6">Loading categories...</p>;
+
   return (
-    <section className="py-12 container mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Shop by Category</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {categories.map((cat) => (
-          <div
-            key={cat._id}
-            onClick={() => navigate(`/categories/${cat._id}`)}
-            className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
-          >
-            <img
-              src={cat.img}
-              alt={cat.name}
-              className="w-full h-40 object-cover"
-            />
-            <div className="p-4 text-center font-semibold">{cat.name}</div>
-          </div>
-        ))}
+    <UserLayout>
+      <div className="p-6 max-w-6xl mx-auto">
+        <h2 className="text-2xl font-bold mb-4">Shop by Category</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {categories.map((cat) => (
+            <Link
+              key={cat._id}
+              to={`/categories/${cat._id}`}
+              className="p-4 border rounded-lg shadow hover:shadow-lg bg-white text-center"
+            >
+              <h3 className="text-lg font-semibold">{cat.name}</h3>
+            </Link>
+          ))}
+        </div>
       </div>
-    </section>
+    </UserLayout>
   );
 };
 

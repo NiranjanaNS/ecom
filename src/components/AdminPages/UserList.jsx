@@ -10,8 +10,8 @@ const UserList = () => {
     try {
       setLoading(true);
       const res = await Axios.get("/admin/users");
-      console.log("Fetched users:", res.data); // Check the array name here
-      setUsers(res.data.user || []); // change users -> allUsers if needed
+      console.log("Fetched users:", res.data); 
+      setUsers(res.data.user || []); 
       setLoading(false);
     } catch (err) {
       console.error("Error fetching users:", err);

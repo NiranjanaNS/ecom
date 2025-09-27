@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 const AdminSidebar = () => {
   return (
     <div className="h-full w-1/4 p-5 space-y-3 bg-gray-100 min-h-screen">
-      <Link to="/admin/home">
+      <Link to="/admin/">
         <p className="cursor-pointer hover:text-blue-600">Home</p>
       </Link>
       <Link to="/admin/user">

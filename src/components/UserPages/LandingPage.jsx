@@ -1,18 +1,18 @@
 import React from "react";
-import UserLayout from "../Layout/UserLayout";
-import NavBar from "./Navbar";
+import UserLayout from "../Layout/UserLayout"
 import HeroBanner from "./HeroBanner";
 import Category from "./Category";
-import BlackFridayIllustration from "./BlackFridayIllustration";
+import Banner from "./Banner";
 
 const LandingPage = () => {
   return (
-    <UserLayout>
-      <NavBar />
-      <BlackFridayIllustration />
+    
+    <UserLayout className="overflow-hidden">
+      <Banner />
       <HeroBanner />
       <Category />
     </UserLayout>
+    
   );
 };
 
