@@ -11,7 +11,7 @@ const NavBar = () => {
 
   const fetchUser = async () => {
     try {
-      const { data } = await Axios.get("user/profile", { withCredentials: true });
+      const { data } = await get("user/profile", { withCredentials: true });
       setUser(data.user || data || null); 
     } catch (err) {
       setUser(null);
@@ -21,7 +21,7 @@ const NavBar = () => {
 
   const handleLogout = async () => {
     try {
-      await Axios.post("/logout", {}, { withCredentials: true }); 
+      await post("/logout", {}, { withCredentials: true }); 
     } catch (err) {
       console.error("Logout failed:", err);
     }
