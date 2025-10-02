@@ -12,7 +12,7 @@ const ChangePassword = () => {
     setLoading(true);
     try {
       const { data } = await Axios.put(
-        "/changepassword",
+        "user/changepassword",
         { oldPassword, newPassword },
         { withCredentials: true }
       );

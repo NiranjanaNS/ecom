@@ -11,7 +11,7 @@ const AdminLogin = () => {
     try {
       console.log('login worked');
       const datatosent = { email, password };
-      const res = await Axios.post('/login', datatosent);
+      const res = await Axios.post('/admin/login', datatosent);
       console.log(res.data); 
       if(res.data.success) {
         localStorage.setItem('admin', true)

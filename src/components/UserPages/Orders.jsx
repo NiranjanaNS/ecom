@@ -11,7 +11,7 @@ function Orders() {
 
   const getOrders = async () => {
     try {
-      const { data } = await Axios.get("/", { withCredentials: true });
+      const { data } = await Axios.get("/orders", { withCredentials: true });
       if (!data || !data.orders) {
         setNotLoggedIn(true);
       } else {
@@ -29,7 +29,7 @@ function Orders() {
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
     try {
-      await Axios.put(`/${orderId}`, {}, { withCredentials: true });
+      await Axios.put(`/orders/${orderId}`, {}, { withCredentials: true });
       alert("Order cancelled successfully");
       getOrders();
     } catch (err) {

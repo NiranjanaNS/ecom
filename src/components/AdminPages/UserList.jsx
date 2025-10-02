@@ -9,7 +9,7 @@ const UserList = () => {
   const getUsers = async () => {
     try {
       setLoading(true);
-      const res = await Axios.get("/users");
+      const res = await Axios.get("/admin/users");
       console.log("Fetched users:", res.data); 
       setUsers(res.data.user || []); 
       setLoading(false);
@@ -22,7 +22,7 @@ const UserList = () => {
   const toggleStatus = async (userId, currentStatus) => {
     try {
       const newStatus = currentStatus === "active" ? "inactive" : "active";
-      await Axios.put(`/users/${userId}`, { status: newStatus });
+      await Axios.put(`/admin/users/${userId}`, { status: newStatus });
       getUsers();
     } catch (err) {
       console.error("Error updating user status:", err);

@@ -16,7 +16,7 @@ const ProductDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const { data } = await Axios.get(`/${id}`);
+        const { data } = await Axios.get(`/products/${id}`);
         setProduct(data);
       } catch (err) {
         console.error("Error fetching product:", err);
@@ -28,7 +28,7 @@ const ProductDetails = () => {
   const handleAddToCart = async () => {
     try {
       await Axios.post(
-        "/",
+        "/cart",
         { prodId: product._id, quantity },
         { withCredentials: true }
       );

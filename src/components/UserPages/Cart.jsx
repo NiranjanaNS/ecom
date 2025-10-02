@@ -13,7 +13,7 @@ const Cart = () => {
 
   const fetchCart = async () => {
     try {
-      const { data } = await Axios.get("/", { withCredentials: true });
+      const { data } = await Axios.get("/cart", { withCredentials: true });
       if (data.items && data.items.length > 0) {
         const cartData = data.items[0];
         setCart({
@@ -40,7 +40,7 @@ const Cart = () => {
 
   const updateQuantity = async (prodId, change) => {
     try {
-      await Axios.post("/", { prodId, quantity: change }, { withCredentials: true });
+      await Axios.post("/cart", { prodId, quantity: change }, { withCredentials: true });
       fetchCart();
     } catch (err) {
       console.error("Error updating cart:", err);
@@ -51,7 +51,7 @@ const Cart = () => {
 
   const placeOrder = async () => {
     try {
-      const { data } = await Axios.post("/", {}, { withCredentials: true });
+      const { data } = await Axios.post("/cart", {}, { withCredentials: true });
       setMsg(data.message || "Order placed successfully!");
       setCart({ items: [], total: 0 });
       setTimeout(() => setMsg(""), 3000);

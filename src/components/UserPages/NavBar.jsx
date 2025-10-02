@@ -11,7 +11,7 @@ const NavBar = () => {
 
   const fetchUser = async () => {
     try {
-      const { data } = await Axios.get("/profile", { withCredentials: true });
+      const { data } = await Axios.get("user/profile", { withCredentials: true });
       setUser(data.user || data || null); 
     } catch (err) {
       setUser(null);
