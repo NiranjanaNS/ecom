@@ -11,7 +11,8 @@ const LogIn = () => {
     e.preventDefault();
     try {
       const response = await Axios.post("/login", { email, password });
-      if (response.status === 200) {
+      if (response.data.success) {
+        localStorage.setItem('user', true)
         navigate("/");
       }
     } catch (error) {

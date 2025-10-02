@@ -10,7 +10,7 @@ const Category = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    Axios.get("/categories")
+    Axios.get("/")
       .then((res) => setCategories(res.data || []))
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));

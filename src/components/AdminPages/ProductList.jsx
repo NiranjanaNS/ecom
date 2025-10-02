@@ -15,7 +15,7 @@ const ProductList = () => {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [categories, setCategories] = useState([]);
-  const [categoriesLoaded, setCategoriesLoaded] = useState(false); // ✅ added
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false); 
   const [imageFiles, setImageFiles] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
 
@@ -24,7 +24,7 @@ const ProductList = () => {
     try {
       const res = await Axios.get("/admin/categories");
       setCategories(res.data.categories || res.data);
-      setCategoriesLoaded(true); // ✅ mark as loaded
+      setCategoriesLoaded(true); 
     } catch (err) {
       console.error("Error fetching categories:", err);
     }
@@ -43,8 +43,8 @@ const ProductList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await getCategories(); // ✅ wait for categories
-        await getProd();       // ✅ then fetch products
+        await getCategories(); 
+        await getProd();       
       } catch (error) {
         console.error("Error loading data:", error);
       }
@@ -83,7 +83,7 @@ const ProductList = () => {
       imageFiles.forEach((file) => formData.append("image", file));
       formData.append("name", name);
       formData.append("price", price);
-      formData.append("categoryId", String(category)); // ✅ ensure string
+      formData.append("categoryId", String(category)); 
       formData.append("brand", brand);
       formData.append("description", description);
 
@@ -108,7 +108,7 @@ const ProductList = () => {
 
       formData.append("name", name);
       formData.append("price", price);
-      formData.append("categoryId", String(category)); // ✅ ensure string
+      formData.append("categoryId", String(category)); 
       formData.append("brand", brand);
       formData.append("description", description);
 
@@ -140,7 +140,7 @@ const ProductList = () => {
       ele.categoryId && typeof ele.categoryId === id
         ? ele.categoryId._id
         : ele.categoryId || "";
-    setCategory(catId); // ✅ always string
+    setCategory(catId);
   };
 
   // Get category name by ID
@@ -164,7 +164,7 @@ const ProductList = () => {
       </div>
 
       {/* Product Table */}
-      {categoriesLoaded && ( // ✅ only render when categories ready
+      {categoriesLoaded && ( 
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 rounded-lg shadow-sm">
             <thead className="bg-gray-100">

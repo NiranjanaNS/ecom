@@ -19,6 +19,8 @@ import UserList from "./components/AdminPages/UserList";
 import ProductList from "./components/AdminPages/ProductList";
 import CategoryList from "./components/AdminPages/CategoryList";
 import OrderStatus from "./components/AdminPages/OrderStatus";
+import Auth from "./components/Auth";
+import UserAuth from "./components/UserAuth";
 
 const App = () => {
   return (
@@ -29,19 +31,19 @@ const App = () => {
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/products" element={<Products />} />
         <Route path="/categories" element={<Category />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/user-profile" element={<UserProfile />} />
-        <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/cart" element={<UserAuth><Cart /></UserAuth>} />
+        <Route path="/orders" element={<UserAuth><Orders /></UserAuth>} />
+        <Route path="/user-profile" element={<UserAuth><UserProfile /></UserAuth>} />
+        <Route path="/change-password" element={<UserAuth><ChangePassword /></UserAuth>} />
 
         <Route path="/login" element={<LogIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/" element={<HomePage />} />
-        <Route path="/admin/user" element={<UserList />} />
-        <Route path="/admin/products" element={<ProductList />} />
-        <Route path="/admin/category" element={<CategoryList />} />
-        <Route path="/admin/order" element={<OrderStatus />} />
+        <Route path="/admin" element={<Auth><HomePage /></Auth>} />
+        <Route path="/admin/user" element={<Auth><UserList /></Auth>} />
+        <Route path="/admin/products" element={<Auth><ProductList /></Auth>} />
+        <Route path="/admin/category" element={<Auth><CategoryList /></Auth>} />
+        <Route path="/admin/order" element={<Auth><OrderStatus /></Auth>} />
       </Routes>
     </Router>
   );

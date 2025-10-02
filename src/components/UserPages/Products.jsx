@@ -11,7 +11,7 @@ function Products() {
 
   const getProducts = async () => {
     try {
-      const res = await Axios.get("/products", { withCredentials: true });
+      const res = await Axios.get("/", { withCredentials: true });
       const data = Array.isArray(res.data) ? res.data : res.data.products || [];
       return data;
     } catch (err) {

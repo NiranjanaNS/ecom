@@ -8,11 +8,12 @@ const Cart = () => {
   const [cart, setCart] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
+  const [notLoggedIn, setNotLoggedIn] = useState(false); 
   const navigate = useNavigate();
 
   const fetchCart = async () => {
     try {
-      const { data } = await Axios.get("/cart", { withCredentials: true });
+      const { data } = await Axios.get("/", { withCredentials: true });
       if (data.items && data.items.length > 0) {
         const cartData = data.items[0];
         setCart({
@@ -24,6 +25,9 @@ const Cart = () => {
       }
     } catch (err) {
       console.error("Error fetching cart:", err);
+      if (err.response?.status === 403 || err.response?.status === 401) {
+        setNotLoggedIn(true); 
+      }
       setCart({ items: [], total: 0 });
     } finally {
       setLoading(false);
@@ -36,11 +40,7 @@ const Cart = () => {
 
   const updateQuantity = async (prodId, change) => {
     try {
-      await Axios.post(
-        "/cart",
-        { prodId, quantity: change },
-        { withCredentials: true }
-      );
+      await Axios.post("/", { prodId, quantity: change }, { withCredentials: true });
       fetchCart();
     } catch (err) {
       console.error("Error updating cart:", err);
@@ -51,11 +51,7 @@ const Cart = () => {
 
   const placeOrder = async () => {
     try {
-      const { data } = await Axios.post(
-        "/orders",
-        {},
-        { withCredentials: true }
-      );
+      const { data } = await Axios.post("/", {}, { withCredentials: true });
       setMsg(data.message || "Order placed successfully!");
       setCart({ items: [], total: 0 });
       setTimeout(() => setMsg(""), 3000);
@@ -68,6 +64,33 @@ const Cart = () => {
   };
 
   if (loading) return <p className="p-6 text-center">Loading cart...</p>;
+
+  if (notLoggedIn) {
+    return (
+      <UserLayout>
+        <div className="max-w-md mx-auto p-6 bg-white rounded shadow mt-6 flex flex-col items-center gap-4">
+          <h2 className="text-xl font-bold">You need to login</h2>
+          <p className="text-gray-600 text-center">
+            Please login to view your cart
+          </p>
+          <div className="flex gap-4 mt-4">
+            <button
+              onClick={() => navigate("/login")}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Go to Login
+            </button>
+            <button
+              onClick={() => navigate(-1)} 
+              className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      </UserLayout>
+    );
+  }
 
   if (cart.items.length === 0)
     return <p className="p-6 text-center text-gray-500">Your cart is empty</p>;
