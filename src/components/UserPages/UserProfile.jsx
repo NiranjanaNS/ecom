@@ -40,7 +40,7 @@ const UserProfile = () => {
 
   const uploadProfilePic = async (file) => {
     const formData = new FormData();
-    formData.append("image", file); // must match backend field
+    formData.append("image", file); 
 
     try {
       const { data } = await Axios.put("/user/profile/upload", formData, {
