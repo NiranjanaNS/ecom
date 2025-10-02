@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Axios from "../../Axios";
 import UserLayout from "../Layout/UserLayout";
+import url from "../ImagePath";
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);
@@ -78,7 +79,7 @@ const UserProfile = () => {
             src={
               preview ||
               (profilePic
-                ? `http://localhost:3000/uploads/${profilePic}`
+                ? `${url}/${profilePic}`
                 : "/default-avatar.png")
             }
             alt={user?.name || "User"}

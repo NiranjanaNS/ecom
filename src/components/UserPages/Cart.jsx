@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Axios from "../../Axios";
 import UserLayout from "../Layout/UserLayout";
+import url from "../ImagePath";
 
 const Cart = () => {
   const [cart, setCart] = useState({ items: [], total: 0 });
@@ -88,8 +89,8 @@ const Cart = () => {
                   src={
                     item.image
                       ? Array.isArray(item.image)
-                        ? `http://localhost:3000/uploads/${item.image[0]}`
-                        : `http://localhost:3000/uploads/${item.image}`
+                        ? `${url}/${item.image[0]}`
+                        : `${url}/${item.image}`
                       : "/default-product.png"
                   }
                   alt={item.productName}

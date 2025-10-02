@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
+import url from "../ImagePath";
 
 const ProductCard = ({ product }) => {
   const imageUrl = product.image
     ? Array.isArray(product.image)
-      ? `http://localhost:3000/uploads/${product.image[0]}`
+      ? `${url}/${product.image[0]}`
       : product.image
     : "/placeholder.png";
 

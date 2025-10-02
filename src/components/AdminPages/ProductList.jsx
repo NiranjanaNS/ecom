@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../Layout/AdminLayout";
 import Axios from "../../Axios";
+import url from "../ImagePath";
 
 const ProductList = () => {
   const [items, setItems] = useState([]);
@@ -183,7 +184,7 @@ const ProductList = () => {
                   <td className="px-6 py-4">
                     {ele.image && ele.image.length > 0 && (
                       <img
-                        src={`http://localhost:3000/uploads/${ele.image[0]}`}
+                        src={`${url}/${ele.image[0]}`}
                         alt={ele.name}
                         className="h-16 w-16 object-cover rounded"
                       />
@@ -229,7 +230,7 @@ const ProductList = () => {
                 {previewImages.map((img, index) => (
                   <div key={index} className="relative">
                     <img
-                      src={`http://localhost:3000/uploads/${img}`}
+                      src={`${url}/${img}`}
                       alt={`preview-${index}`}
                       className="h-16 w-16 object-cover rounded"
                     />

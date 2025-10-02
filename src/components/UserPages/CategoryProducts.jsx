@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Axios from "../../Axios";
 import UserLayout from "../Layout/UserLayout";
+import url from "../ImagePath";
 
 function CategoryProducts() {
   const { id } = useParams();
@@ -37,7 +38,7 @@ function CategoryProducts() {
               className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
             >
               <img
-                src={`http://localhost:3000/uploads/${product.image[0]}`}
+                src={`${url}/${product.image[0]}`}
                 alt={product.name}
                 className="w-full h-48 object-cover"
               />

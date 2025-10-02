@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Axios from "../../Axios";
 import UserLayout from "../Layout/UserLayout";
+import url from "../ImagePath";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -47,7 +48,7 @@ const ProductDetails = () => {
       <div className="flex flex-col justify-center items-center min-h-screen p-6 bg-gray-100">
         <div className="flex flex-col justify-center items-center p-6 max-w-md w-full bg-white border rounded-lg shadow">
           <img
-            src={`http://localhost:3000/uploads/${product.image[0]}`}
+            src={`${url}/${product.image[0]}`}
             alt={product.name}
             className="w-full h-64 object-cover rounded"
           />

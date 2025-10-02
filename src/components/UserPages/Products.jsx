@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import Axios from "../../Axios";
 import UserLayout from "../Layout/UserLayout";
+import url from "../ImagePath";
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -56,7 +57,7 @@ function Products() {
                 description: product.description,
                 image:
                   product.image && product.image.length > 0
-                    ? `http://localhost:3000/uploads/${product.image[0]}`
+                    ? `${url}/${product.image[0]}`
                     : "/placeholder.png",
               }}
             />
