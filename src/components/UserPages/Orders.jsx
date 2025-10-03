@@ -3,65 +3,59 @@ import { useNavigate } from "react-router-dom";
 import Axios from "../../Axios";
 import UserLayout from "../Layout/UserLayout";
 
-function Orders() {
+const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notLoggedIn, setNotLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  const getOrders = async () => {
+  const fetchOrders = async () => {
     try {
-      const { data } = await Axios.get("/orders", { withCredentials: true });
-      if (!data || !data.orders) {
+      const { data } = await Axios.get("/orders");
+      if (!data?.orders) {
         setNotLoggedIn(true);
       } else {
-        const userOrders = Array.isArray(data.orders) ? data.orders : [];
-        setOrders(userOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+        setOrders(data.orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
       }
     } catch (err) {
-      console.error("Error fetching orders:", err);
+      console.error(err);
       if (err.response?.status === 401 || err.response?.status === 403) setNotLoggedIn(true);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => { fetchOrders(); }, []);
+
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
     try {
-      await Axios.put(`/orders/${orderId}`, {}, { withCredentials: true });
+      await Axios.put(`/orders/${orderId}`);
       alert("Order cancelled successfully");
-      getOrders();
+      fetchOrders();
     } catch (err) {
-      console.error("Error cancelling order:", err);
+      console.error(err);
       alert("Failed to cancel order");
     }
   };
 
-  useEffect(() => {
-    getOrders();
-  }, []);
+  if (loading) return <p className="p-6 text-center text-gray-500">Loading orders...</p>;
 
-  if (loading)
-    return <p className="p-6 text-center text-gray-500">Loading orders...</p>;
-
-  if (notLoggedIn) {
+  if (notLoggedIn)
     return (
       <UserLayout>
         <div className="max-w-md mx-auto p-6 bg-white rounded shadow mt-6 flex flex-col items-center gap-4">
           <h2 className="text-xl font-bold">You need to login</h2>
           <p className="text-gray-600 text-center">Please login to view your orders</p>
           <div className="flex gap-4 mt-4">
-            <button onClick={() => navigate("/login")} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Go to Login</button>
+            <button onClick={() => navigate("/login")} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Login</button>
             <button onClick={() => navigate(-1)} className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Back</button>
           </div>
         </div>
       </UserLayout>
     );
-  }
 
-  if (orders.length === 0)
-    return <UserLayout><p className="p-6 text-center text-gray-500">No orders found.</p></UserLayout>;
+  if (orders.length === 0) return <UserLayout><p className="p-6 text-center text-gray-500">No orders found.</p></UserLayout>;
 
   return (
     <UserLayout>
@@ -77,13 +71,9 @@ function Orders() {
             <div className="mt-2">
               <p className="font-semibold">Products:</p>
               <ul className="list-disc ml-6">
-                {order.items && order.items.length > 0 ? (
-                  order.items.map((item) => (
-                    <li key={item.prodId}>{item.productName} - ₹{item.price} x {item.quantity} = ₹{item.subtotal}</li>
-                  ))
-                ) : (
-                  <li>No products</li>
-                )}
+                {order.items?.map((item) => (
+                  <li key={item.prodId}>{item.productName} - ₹{item.price} x {item.quantity} = ₹{item.subtotal}</li>
+                ))}
               </ul>
             </div>
             <p className="mt-2 font-bold">Total: ₹{order.total}</p>
@@ -95,6 +85,6 @@ function Orders() {
       </div>
     </UserLayout>
   );
-}
+};
 
 export default Orders;
