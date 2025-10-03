@@ -17,7 +17,7 @@ const UserProfile = () => {
   // Fetch user profile from backend
   const fetchUser = async () => {
     try {
-      const { data } = await Axios.get("user/profile", { withCredentials: true });
+      const { data } = await Axios.get("/user/profile", { withCredentials: true });
 
       if (!data || !data.user) {
         setNotLoggedIn(true);
@@ -54,7 +54,7 @@ const UserProfile = () => {
     formData.append("image", file);
 
     try {
-      const { data } = await Axios.put("user/profile/upload", formData, {
+      const { data } = await Axios.put("/user/profile/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });

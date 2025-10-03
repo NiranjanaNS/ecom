@@ -22,7 +22,7 @@ const ProductList = () => {
   // Fetch categories
   const getCategories = async () => {
     try {
-      const res = await Axios.get("/admin/categories");
+      const res = await Axios.get("/categories/admin/categories");
       setCategories(res.data.categories || res.data);
       setCategoriesLoaded(true); 
     } catch (err) {
@@ -33,7 +33,7 @@ const ProductList = () => {
   // Fetch products
   const getProd = async () => {
     try {
-      const res = await Axios.get("/admin/products");
+      const res = await Axios.get("/products/admin/products");
       setItems(res.data.products || []);
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -69,7 +69,7 @@ const ProductList = () => {
   // Delete product
   const deleteProd = async (id) => {
     try {
-      await Axios.delete(`/admin/products/${id}`);
+      await Axios.delete(`/products/admin/products/${id}`);
       getProd();
     } catch (err) {
       console.error("Error deleting product:", err);
@@ -87,7 +87,7 @@ const ProductList = () => {
       formData.append("brand", brand);
       formData.append("description", description);
 
-      await Axios.post("/admin/products", formData, {
+      await Axios.post("/products/admin/products", formData, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
@@ -112,7 +112,7 @@ const ProductList = () => {
       formData.append("brand", brand);
       formData.append("description", description);
 
-      await Axios.put(`/admin/products/${id}`, formData, {
+      await Axios.put(`/products/admin/products/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });

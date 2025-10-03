@@ -11,7 +11,7 @@ function CategoryProducts() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    Axios.get(`/categories/${id}/products`)
+    Axios.get(`/products/categories/${id}/products`)
       .then((res) => {
         setProducts(res.data.products || res.data || []);
         setLoading(false);

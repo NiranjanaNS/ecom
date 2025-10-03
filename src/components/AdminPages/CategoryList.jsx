@@ -12,7 +12,7 @@ const CategoryList = () => {
 
   const getCat = async () => {
     try {
-      const cat = await Axios.get("/admin/categories");
+      const cat = await Axios.get("/categories/admin/categories");
       setItems(cat.data);
     } catch (error) {
       console.error(error);
@@ -25,7 +25,7 @@ const CategoryList = () => {
 
   const deleteCat = async (id) => {
     try {
-      await Axios.delete(`/admin/categories/${id}`);
+      await Axios.delete(`/categories/admin/categories/${id}`);
       getCat();
     } catch (error) {
       console.error(error);
@@ -34,7 +34,7 @@ const CategoryList = () => {
 
   const addCat = async () => {
     const data = { name, description };
-    await Axios.post("/admin/categories", data);
+    await Axios.post("/categories/admin/categories", data);
     getCat();
     setShow(false);
   };
@@ -48,7 +48,7 @@ const CategoryList = () => {
 
   const editCat = async () => {
     const data = { name, description };
-    await Axios.put(`/admin/categories/${id}`, data);
+    await Axios.put(`/categories/admin/categories/${id}`, data);
     getCat();
     setEdit(false);
     setId(null);

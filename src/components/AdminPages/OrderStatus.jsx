@@ -9,7 +9,7 @@ const OrderStatus = () => {
   const getOrders = async () => {
     try {
       setLoading(true);
-      const res = await Axios.get("/admin/orders");
+      const res = await Axios.get("/orders/admin/orders");
       const sortedOrders = (res.data.orders || []).sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
@@ -43,7 +43,7 @@ const OrderStatus = () => {
   const updateStatus = async (orderId, newStatus, currentStatus) => {
     if (newStatus === currentStatus) return;
     try {
-      await Axios.put(`/admin/orders/${orderId}`, { status: newStatus });
+      await Axios.put(`/orders/admin/orders/${orderId}`, { status: newStatus });
       getOrders();
     } catch (err) {
       console.error("Error updating order status:", err);
@@ -53,7 +53,7 @@ const OrderStatus = () => {
   const deleteOrder = async (orderId, status) => {
     if (status !== "cancelled") return;
     try {
-      await Axios.delete(`/admin/orders/${orderId}`);
+      await Axios.delete(`/orders/admin/orders/${orderId}`);
       getOrders();
     } catch (err) {
       console.error("Error deleting order:", err);
