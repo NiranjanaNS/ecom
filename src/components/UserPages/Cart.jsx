@@ -8,7 +8,7 @@ const Cart = () => {
   const [cart, setCart] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
-  const [notLoggedIn, setNotLoggedIn] = useState(false); 
+  const [notLoggedIn, setNotLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   // Fetch cart from backend
@@ -26,8 +26,8 @@ const Cart = () => {
       }
     } catch (err) {
       console.error("Error fetching cart:", err);
-      if (err.response?.status === 403 || err.response?.status === 401) {
-        setNotLoggedIn(true); 
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setNotLoggedIn(true);
       }
       setCart({ items: [], total: 0 });
     } finally {
@@ -42,7 +42,11 @@ const Cart = () => {
   // Update product quantity
   const updateQuantity = async (prodId, change) => {
     try {
-      await Axios.post("/cart", { prodId, quantity: change }, { withCredentials: true });
+      await Axios.post(
+        "/cart",
+        { prodId, quantity: change },
+        { withCredentials: true }
+      );
       fetchCart();
     } catch (err) {
       console.error("Error updating cart:", err);
@@ -53,8 +57,9 @@ const Cart = () => {
 
   // Place order
   const placeOrder = async () => {
+    if (cart.items.length === 0) return; // prevent empty order
     try {
-      const { data } = await Axios.post("/orders", { items: cart.items }, { withCredentials: true });
+      const { data } = await Axios.post("/orders", {}, { withCredentials: true });
       setMsg(data.message || "Order placed successfully!");
       setCart({ items: [], total: 0 });
       setTimeout(() => setMsg(""), 3000);
@@ -66,6 +71,13 @@ const Cart = () => {
     }
   };
 
+  // Get image URL
+  const getImageUrl = (image) => {
+    if (!image) return "/default-product.png"; 
+    const img = Array.isArray(image) ? image[0] : image;
+    return img.startsWith("http") ? img : `${url}/${img}`;
+  };
+
   if (loading) return <p className="p-6 text-center">Loading cart...</p>;
 
   if (notLoggedIn) {
@@ -73,9 +85,7 @@ const Cart = () => {
       <UserLayout>
         <div className="max-w-md mx-auto p-6 bg-white rounded shadow mt-6 flex flex-col items-center gap-4">
           <h2 className="text-xl font-bold">You need to login</h2>
-          <p className="text-gray-600 text-center">
-            Please login to view your cart
-          </p>
+          <p className="text-gray-600 text-center">Please login to view your cart</p>
           <div className="flex gap-4 mt-4">
             <button
               onClick={() => navigate("/login")}
@@ -84,7 +94,7 @@ const Cart = () => {
               Go to Login
             </button>
             <button
-              onClick={() => navigate(-1)} 
+              onClick={() => navigate(-1)}
               className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
             >
               Back
@@ -112,17 +122,7 @@ const Cart = () => {
             >
               <div className="flex items-center gap-4">
                 <img
-                  src={
-                    item.image
-                      ? Array.isArray(item.image)
-                        ? item.image[0].startsWith("http")
-                          ? item.image[0]
-                          : `${url}/${item.image[0]}`
-                        : item.image.startsWith("http")
-                          ? item.image
-                          : `${url}/${item.image}`
-                      : "/default-product.png"
-                  }
+                  src={getImageUrl(item.image)}
                   alt={item.productName}
                   className="w-20 h-20 object-cover rounded"
                 />
@@ -163,7 +163,10 @@ const Cart = () => {
             <p className="text-xl font-bold">Total: ₹{cart.total}</p>
             <button
               onClick={placeOrder}
-              className="mt-4 md:mt-0 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+              disabled={cart.items.length === 0}
+              className={`mt-4 md:mt-0 px-6 py-2 rounded ${
+                cart.items.length === 0 ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+              } text-white`}
             >
               Place Order
             </button>
