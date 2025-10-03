@@ -11,7 +11,7 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await Axios.post("/user/register", { name, email, password });
+      const response = await Axios.post("/register", { name, email, password });
 
       if (response.status === 201) {
         alert(response.data.message);

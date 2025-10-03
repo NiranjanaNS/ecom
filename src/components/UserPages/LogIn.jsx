@@ -10,7 +10,7 @@ const LogIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await Axios.post("/user/login", { email, password });
+      const response = await Axios.post("/login", { email, password });
       if (response.data.success) {
         localStorage.setItem('user', true)
         navigate("/");
