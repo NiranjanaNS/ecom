@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Axios from "../../Axios";
 import UserLayout from "../Layout/UserLayout";
-import img from "../../assets/164bcf42-ff2f-454a-b671-02b8aa6eb433.jpg"
+import img from "../../assets/164bcf42-ff2f-454a-b671-02b8aa6eb433.jpg";
 import url from "../ImagePath";
 
 const UserProfile = () => {
@@ -19,17 +19,23 @@ const UserProfile = () => {
     try {
       const { data } = await Axios.get("/user/profile", { withCredentials: true });
 
-      if (!data || !data.user) {
+      // Accept both { user: {...} } or just user object
+      const fetchedUser = data.user || data;
+
+      if (!fetchedUser || Object.keys(fetchedUser).length === 0) {
         setNotLoggedIn(true);
         setUser(null);
         setProfilePic(null);
       } else {
-        setUser(data.user);
-        setProfilePic(data.user.image || null);
+        setNotLoggedIn(false);
+        setUser(fetchedUser);
+        setProfilePic(fetchedUser.image || null);
       }
     } catch (err) {
       console.error("Fetch user error:", err);
-      setNotLoggedIn(true); 
+      setNotLoggedIn(true);
+      setUser(null);
+      setProfilePic(null);
     } finally {
       setLoading(false);
     }
@@ -77,7 +83,8 @@ const UserProfile = () => {
     fetchUser();
   }, []);
 
-  if (loading) return <p className="p-6 text-center">Loading profile...</p>;
+  if (loading)
+    return <p className="p-6 text-center">Loading profile...</p>;
 
   return (
     <UserLayout>
@@ -107,9 +114,9 @@ const UserProfile = () => {
                 preview ||
                 (profilePic
                   ? profilePic.startsWith("uploads/")
-                    ? `${url}/${profilePic}`
+                    ? `${url}/${profilePic}` // path from server
                     : `${url}/${profilePic}`
-                  : "/default-avatar.png")
+                  : img)
               }
               alt={user?.name || "User"}
               className="w-24 h-24 rounded-full object-cover cursor-pointer hover:opacity-80"

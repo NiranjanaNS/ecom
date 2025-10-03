@@ -11,6 +11,7 @@ const Cart = () => {
   const [notLoggedIn, setNotLoggedIn] = useState(false); 
   const navigate = useNavigate();
 
+  // Fetch cart from backend
   const fetchCart = async () => {
     try {
       const { data } = await Axios.get("/cart", { withCredentials: true });
@@ -38,6 +39,7 @@ const Cart = () => {
     fetchCart();
   }, []);
 
+  // Update product quantity
   const updateQuantity = async (prodId, change) => {
     try {
       await Axios.post("/cart", { prodId, quantity: change }, { withCredentials: true });
@@ -49,15 +51,16 @@ const Cart = () => {
     }
   };
 
+  // Place order
   const placeOrder = async () => {
     try {
-      const { data } = await Axios.post("/cart", {}, { withCredentials: true });
+      const { data } = await Axios.post("/orders", { items: cart.items }, { withCredentials: true });
       setMsg(data.message || "Order placed successfully!");
       setCart({ items: [], total: 0 });
       setTimeout(() => setMsg(""), 3000);
       navigate("/");
     } catch (err) {
-      console.error("Error placing order:", err);
+      console.error("Error placing order:", err.response || err);
       setMsg("Failed to place order");
       setTimeout(() => setMsg(""), 3000);
     }
@@ -112,8 +115,12 @@ const Cart = () => {
                   src={
                     item.image
                       ? Array.isArray(item.image)
-                        ? `${url}/${item.image[0]}`
-                        : `${url}/${item.image}`
+                        ? item.image[0].startsWith("http")
+                          ? item.image[0]
+                          : `${url}/${item.image[0]}`
+                        : item.image.startsWith("http")
+                          ? item.image
+                          : `${url}/${item.image}`
                       : "/default-product.png"
                   }
                   alt={item.productName}
