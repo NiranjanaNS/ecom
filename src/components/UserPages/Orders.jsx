@@ -11,14 +11,16 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
-      const { data } = await Axios.get("/orders");
+      console.log("Fetching orders...");
+      const { data } = await Axios.get("/orders", { withCredentials: true });
+      console.log("Orders data:", data);
       if (!data?.orders) {
         setNotLoggedIn(true);
       } else {
         setOrders(data.orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching orders:", err);
       if (err.response?.status === 401 || err.response?.status === 403) setNotLoggedIn(true);
     } finally {
       setLoading(false);
@@ -30,11 +32,12 @@ const Orders = () => {
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
     try {
-      await Axios.put(`/orders/${orderId}`);
+      console.log("Cancelling order:", orderId);
+      await Axios.put(`/orders/${orderId}`, {}, { withCredentials: true });
       alert("Order cancelled successfully");
       fetchOrders();
     } catch (err) {
-      console.error(err);
+      console.error("Failed to cancel order:", err);
       alert("Failed to cancel order");
     }
   };
