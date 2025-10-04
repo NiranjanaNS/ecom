@@ -41,15 +41,8 @@ const ProductList = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await getCategories();
-        await getProd();
-      } catch (error) {
-        console.error("Error loading data:", error);
-      }
-    };
-    fetchData();
+    getCategories();
+    getProd();
   }, []);
 
   // Reset form
@@ -69,7 +62,7 @@ const ProductList = () => {
   // Delete product
   const deleteProd = async (id) => {
     try {
-      await Axios.delete(`/products/admin/products/${id}`);
+      await Axios.delete(`/products/admin/products/${id}`, { withCredentials: true });
       getProd();
     } catch (err) {
       console.error("Error deleting product:", err);
@@ -102,6 +95,8 @@ const ProductList = () => {
   // Edit product
   const editProd = async () => {
     try {
+      if (!id) return console.error("No product selected for edit");
+
       const formData = new FormData();
       imageFiles.forEach((file) => formData.append("image", file));
       previewImages.forEach((img) => formData.append("existingImages", img));
@@ -112,8 +107,6 @@ const ProductList = () => {
       formData.append("brand", brand);
       formData.append("description", description);
 
-      console.log("Submitting edit for product:", id);
-
       await Axios.put(`/products/admin/products/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
@@ -122,13 +115,12 @@ const ProductList = () => {
       resetForm();
       getProd();
     } catch (err) {
-      console.error("Error editing product:", err);
+      console.error("Error editing product:", err.response?.data || err);
     }
   };
 
   // Handle edit modal
   const handleEdit = (ele) => {
-    console.log("Editing product:", ele);
     setEdit(true);
     setId(ele._id);
     setName(ele.name || "");
@@ -139,10 +131,7 @@ const ProductList = () => {
     setImageFiles([]);
     setShow(false);
 
-    let catId = "";
-    if (ele.categoryId) {
-      catId = typeof ele.categoryId === "object" ? ele.categoryId._id : ele.categoryId;
-    }
+    const catId = ele.categoryId ? (typeof ele.categoryId === "object" ? ele.categoryId._id : ele.categoryId) : "";
     setCategory(catId);
   };
 
@@ -155,7 +144,6 @@ const ProductList = () => {
 
   return (
     <AdminLayout>
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">Products</h1>
         <button
@@ -166,7 +154,6 @@ const ProductList = () => {
         </button>
       </div>
 
-      {/* Product Table */}
       {categoriesLoaded && (
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 rounded-lg shadow-sm">
@@ -186,11 +173,7 @@ const ProductList = () => {
                 <tr key={ele._id}>
                   <td className="px-6 py-4">
                     {ele.image && ele.image.length > 0 && (
-                      <img
-                        src={`${url}/${ele.image[0]}`}
-                        alt={ele.name}
-                        className="h-16 w-16 object-cover rounded"
-                      />
+                      <img src={`${url}/${ele.image[0]}`} alt={ele.name} className="h-16 w-16 object-cover rounded" />
                     )}
                   </td>
                   <td className="px-6 py-4">{ele.name}</td>
@@ -199,16 +182,10 @@ const ProductList = () => {
                   <td className="px-6 py-4">{getCatName(ele.categoryId)}</td>
                   <td className="px-6 py-4">{ele.description}</td>
                   <td className="px-6 py-4 flex justify-center gap-2">
-                    <button
-                      onClick={() => handleEdit(ele)}
-                      className="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-                    >
+                    <button onClick={() => handleEdit(ele)} className="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
                       Edit
                     </button>
-                    <button
-                      onClick={() => deleteProd(ele._id)}
-                      className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                    >
+                    <button onClick={() => deleteProd(ele._id)} className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700">
                       Delete
                     </button>
                   </td>
@@ -219,28 +196,18 @@ const ProductList = () => {
         </div>
       )}
 
-      {/* Add / Edit Modal */}
       {(show || edit) && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-semibold mb-4">
-              {edit ? "Edit Product" : "Add Product"}
-            </h2>
+            <h2 className="text-xl font-semibold mb-4">{edit ? "Edit Product" : "Add Product"}</h2>
 
-            {/* Existing images for edit */}
             {edit && previewImages.length > 0 && (
               <div className="flex gap-2 mb-3">
                 {previewImages.map((img, index) => (
                   <div key={index} className="relative">
-                    <img
-                      src={`${url}/${img}`}
-                      alt={`preview-${index}`}
-                      className="h-16 w-16 object-cover rounded"
-                    />
+                    <img src={`${url}/${img}`} alt={`preview-${index}`} className="h-16 w-16 object-cover rounded" />
                     <button
-                      onClick={() =>
-                        setPreviewImages(previewImages.filter((_, i) => i !== index))
-                      }
+                      onClick={() => setPreviewImages(previewImages.filter((_, i) => i !== index))}
                       className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
                     >
                       ×
@@ -250,66 +217,23 @@ const ProductList = () => {
               </div>
             )}
 
-            <input
-              type="file"
-              multiple
-              onChange={(e) => setImageFiles(Array.from(e.target.files))}
-              className="w-full mb-3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name"
-              className="w-full mb-3 px-4 py-2 border rounded-md"
-            />
-            <input
-              type="text"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="Price"
-              className="w-full mb-3 px-4 py-2 border rounded-md"
-            />
-            <input
-              type="text"
-              value={brand}
-              onChange={(e) => setBrand(e.target.value)}
-              placeholder="Brand"
-              className="w-full mb-3 px-4 py-2 border rounded-md"
-            />
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full mb-3 px-4 py-2 border rounded-md"
-            >
+            <input type="file" multiple onChange={(e) => setImageFiles(Array.from(e.target.files))} className="w-full mb-3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="w-full mb-3 px-4 py-2 border rounded-md" />
+            <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" className="w-full mb-3 px-4 py-2 border rounded-md" />
+            <input type="text" value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="Brand" className="w-full mb-3 px-4 py-2 border rounded-md" />
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full mb-3 px-4 py-2 border rounded-md">
               <option value="">Select Category</option>
               {categories.map((ele) => (
-                <option key={ele._id} value={ele._id}>
-                  {ele.name}
-                </option>
+                <option key={ele._id} value={ele._id}>{ele.name}</option>
               ))}
             </select>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Description"
-              className="w-full mb-4 px-4 py-2 border rounded-md"
-            />
+            <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="w-full mb-4 px-4 py-2 border rounded-md" />
 
             <div className="flex justify-end gap-3">
-              <button
-                onClick={edit ? editProd : addProd}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-              >
+              <button onClick={edit ? editProd : addProd} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
                 {edit ? "Save Changes" : "Add"}
               </button>
-              <button
-                onClick={resetForm}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
-              >
-                Close
-              </button>
+              <button onClick={resetForm} className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Close</button>
             </div>
           </div>
         </div>
