@@ -68,9 +68,7 @@ const Cart = () => {
   const placeOrder = async () => {
     if (cart.items.length === 0) return;
     try {
-      console.log("Placing order...");
       const { data } = await Axios.post("/orders", {}, { withCredentials: true });
-      console.log("Order response:", data);
       setMsg(data.message || "Order placed successfully!");
       setCart({ items: [], total: 0 });
       setTimeout(() => setMsg(""), 3000);

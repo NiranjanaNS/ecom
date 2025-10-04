@@ -15,7 +15,7 @@ const ProductList = () => {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [categories, setCategories] = useState([]);
-  const [categoriesLoaded, setCategoriesLoaded] = useState(false); 
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [imageFiles, setImageFiles] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
 
@@ -24,7 +24,7 @@ const ProductList = () => {
     try {
       const res = await Axios.get("/categories/admin/categories");
       setCategories(res.data.categories || res.data);
-      setCategoriesLoaded(true); 
+      setCategoriesLoaded(true);
     } catch (err) {
       console.error("Error fetching categories:", err);
     }
@@ -43,8 +43,8 @@ const ProductList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await getCategories(); 
-        await getProd();       
+        await getCategories();
+        await getProd();
       } catch (error) {
         console.error("Error loading data:", error);
       }
@@ -83,7 +83,7 @@ const ProductList = () => {
       imageFiles.forEach((file) => formData.append("image", file));
       formData.append("name", name);
       formData.append("price", price);
-      formData.append("categoryId", String(category)); 
+      formData.append("categoryId", String(category));
       formData.append("brand", brand);
       formData.append("description", description);
 
@@ -108,9 +108,11 @@ const ProductList = () => {
 
       formData.append("name", name);
       formData.append("price", price);
-      formData.append("categoryId", String(category)); 
+      formData.append("categoryId", String(category));
       formData.append("brand", brand);
       formData.append("description", description);
+
+      console.log("Submitting edit for product:", id);
 
       await Axios.put(`/products/admin/products/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -126,20 +128,21 @@ const ProductList = () => {
 
   // Handle edit modal
   const handleEdit = (ele) => {
+    console.log("Editing product:", ele);
     setEdit(true);
     setId(ele._id);
-    setName(ele.name);
-    setPrice(ele.price);
-    setBrand(ele.brand);
-    setDescription(ele.description);
+    setName(ele.name || "");
+    setPrice(ele.price || "");
+    setBrand(ele.brand || "");
+    setDescription(ele.description || "");
     setPreviewImages(ele.image || []);
     setImageFiles([]);
     setShow(false);
 
-    const catId =
-      ele.categoryId && typeof ele.categoryId === id
-        ? ele.categoryId._id
-        : ele.categoryId || "";
+    let catId = "";
+    if (ele.categoryId) {
+      catId = typeof ele.categoryId === "object" ? ele.categoryId._id : ele.categoryId;
+    }
     setCategory(catId);
   };
 
@@ -164,7 +167,7 @@ const ProductList = () => {
       </div>
 
       {/* Product Table */}
-      {categoriesLoaded && ( 
+      {categoriesLoaded && (
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 rounded-lg shadow-sm">
             <thead className="bg-gray-100">
@@ -299,7 +302,7 @@ const ProductList = () => {
                 onClick={edit ? editProd : addProd}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
-                {edit ? "Edit" : "Add"}
+                {edit ? "Save Changes" : "Add"}
               </button>
               <button
                 onClick={resetForm}
