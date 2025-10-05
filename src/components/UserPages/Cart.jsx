@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Axios from "../../Axios";
 import UserLayout from "../Layout/UserLayout";
-import url from "../ImagePath"; 
+import url from "../ImagePath";
 
 const Cart = () => {
   const [cart, setCart] = useState({ items: [], total: 0 });
@@ -15,11 +15,11 @@ const Cart = () => {
   const fetchCart = async () => {
     try {
       const { data } = await Axios.get("/cart", { withCredentials: true });
-      const items = data.items || [];
-      const total = items.reduce((sum, item) => sum + (item.price * item.quantity || 0), 0);
-      setCart({ items, total });
+      const cartData = data.items?.[0] || { items: [], total: 0 };
+      setCart({ items: cartData.items || [], total: cartData.total || 0 });
     } catch (err) {
-      if (err.response?.status === 401 || err.response?.status === 403) setNotLoggedIn(true);
+      if (err.response?.status === 401 || err.response?.status === 403)
+        setNotLoggedIn(true);
       setCart({ items: [], total: 0 });
     } finally {
       setLoading(false);
@@ -34,12 +34,18 @@ const Cart = () => {
   const updateQuantity = async (item, newQty) => {
     try {
       if (newQty <= 0) {
-        await Axios.delete(`/cart/delete/${item.prodId}`, { withCredentials: true });
+        await Axios.delete(`/cart/delete/${item.prodId}`, {
+          withCredentials: true,
+        });
       } else {
-        await Axios.put(`/cart/${item.prodId}`, { quantity: newQty }, { withCredentials: true });
+        await Axios.put(
+          `/cart/${item.prodId}`,
+          { quantity: newQty },
+          { withCredentials: true }
+        );
       }
       fetchCart();
-    } catch {
+    } catch (err) {
       setMsg("Failed to update cart");
       setTimeout(() => setMsg(""), 2000);
     }
@@ -51,23 +57,22 @@ const Cart = () => {
   // Place order
   const placeOrder = async () => {
     if (!cart.items.length) return;
-    try {
-      const { data } = await Axios.post("/orders", {}, { withCredentials: true });
-      setMsg(data.message || "Order placed successfully!");
-      setCart({ items: [], total: 0 });
-      setTimeout(() => setMsg(""), 3000);
-      navigate("/orders");
-    } catch (err) {
-      setMsg(err.response?.data?.message || "Failed to place order");
-      setTimeout(() => setMsg(""), 3000);
+    if (!notLoggedIn) {
+      try {
+        const { data } = await Axios.post(
+          "/orders",
+          {},
+          { withCredentials: true }
+        );
+        setMsg(data.message || "Order placed successfully!");
+        setCart({ items: [], total: 0 });
+        setTimeout(() => setMsg(""), 3000);
+        navigate("/orders");
+      } catch {
+        setMsg("Failed to place order");
+        setTimeout(() => setMsg(""), 3000);
+      }
     }
-  };
-
-  // Get image
-  const getImageUrl = (image) => {
-    if (!image) return "/placeholder.png";
-    const imgName = Array.isArray(image) ? image[0] : image;
-    return `${url}/${imgName}`;
   };
 
   if (loading) return <p className="p-6 text-center">Loading cart...</p>;
@@ -77,7 +82,9 @@ const Cart = () => {
       <UserLayout>
         <div className="p-6 max-w-md mx-auto bg-white rounded shadow text-center mt-6">
           <h2 className="text-xl font-bold mb-2">Please Login</h2>
-          <p className="text-gray-600 mb-4">You need to login to view your cart</p>
+          <p className="text-gray-600 mb-4">
+            You need to login to view your cart
+          </p>
           <button
             onClick={() => navigate("/login")}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -98,20 +105,27 @@ const Cart = () => {
 
         {cart.items.map((item) => (
           <div
-            key={item.prodId}
+            key={item._id}
             className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded shadow mb-4 w-full max-w-3xl"
           >
             <div className="flex items-center gap-4">
               <img
-                src={getImageUrl(item.image)}
-                alt={item.productName || "Product"}
+                src={
+                  item.image
+                    ? Array.isArray(item.image)
+                      ? `${url}/${item.image[0]}`
+                      : `${url}/${item.image}`
+                    : "/placeholder.png"
+                }
+                alt={item.productName}
                 className="w-20 h-20 object-cover rounded"
               />
+
               <div>
                 <h2 className="font-semibold">{item.productName}</h2>
-                <p className="text-gray-600">Price: ₹{item.price || 0}</p>
+                <p className="text-gray-600">Price: ₹{item.price}</p>
                 <p className="text-gray-500 text-sm">
-                  Subtotal: ₹{(item.price || 0) * (item.quantity || 0)}
+                  Subtotal: ₹{item.subtotal || item.price * item.quantity}
                 </p>
               </div>
             </div>
@@ -122,7 +136,7 @@ const Cart = () => {
               >
                 -
               </button>
-              <span>{item.quantity || 0}</span>
+              <span>{item.quantity}</span>
               <button
                 onClick={() => increase(item)}
                 className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
