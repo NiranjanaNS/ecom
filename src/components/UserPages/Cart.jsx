@@ -61,7 +61,6 @@ const Cart = () => {
       try {
         const { data } = await Axios.post(
           "/orders",
-          {},
           { withCredentials: true }
         );
         setMsg(data.message || "Order placed successfully!");
