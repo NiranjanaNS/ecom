@@ -110,13 +110,17 @@ const Cart = () => {
           >
             <div className="flex items-center gap-4">
               <img
-                src={item.image && item.image.length > 0
-                    ? `${url}/${item.image[0]}`
-                    : "/placeholder.png",
-              }
+                src={
+                  item.image
+                    ? Array.isArray(item.image)
+                      ? `${url}/${item.image[0]}`
+                      : `${url}/${item.image}`
+                    : "/placeholder.png"
+                }
                 alt={item.productName}
                 className="w-20 h-20 object-cover rounded"
               />
+
               <div>
                 <h2 className="font-semibold">{item.productName}</h2>
                 <p className="text-gray-600">Price: ₹{item.price}</p>
