@@ -4,33 +4,26 @@ import Axios from "../../Axios";
 
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
   const [show, setShow] = useState(false);
   const [edit, setEdit] = useState(false);
-
   const [id, setId] = useState(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  // get categories
   const getCategories = async () => {
     try {
       const res = await Axios.get("/categories/admin/categories");
-      setCategories(res.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+      const categoriesArray = Array.isArray(res.data)
+        ? res.data
+        : res.data.categories || [];
 
-  // get products
-  const getProducts = async () => {
-    try {
-      const res = await Axios.get("/products/admin/products");
-      // sort: newest first
-      const sorted = res.data.sort(
-        (a, b) => new Date(b.created_on) - new Date(a.created_on)
-      );
-      setProducts(sorted);
+      const sortedCategories = categoriesArray.sort((a, b) => {
+        const dateA = a.created_on ? new Date(a.created_on) : new Date(0);
+        const dateB = b.created_on ? new Date(b.created_on) : new Date(0);
+        return dateB - dateA;
+      });
+
+      setCategories(sortedCategories);
     } catch (error) {
       console.error(error);
     }
@@ -38,10 +31,8 @@ const CategoryList = () => {
 
   useEffect(() => {
     getCategories();
-    getProducts();
   }, []);
 
-  // delete category
   const deleteCategory = async (id) => {
     try {
       await Axios.delete(`/categories/admin/categories/${id}`);
@@ -51,7 +42,6 @@ const CategoryList = () => {
     }
   };
 
-  // add category
   const addCategory = async () => {
     const data = { name, description };
     await Axios.post("/categories/admin/categories", data);
@@ -61,7 +51,6 @@ const CategoryList = () => {
     setDescription("");
   };
 
-  // handle edit
   const handleEdit = (cat) => {
     setEdit(true);
     setId(cat._id);
@@ -69,7 +58,6 @@ const CategoryList = () => {
     setDescription(cat.description);
   };
 
-  // edit category
   const editCategory = async () => {
     const data = { name, description };
     await Axios.put(`/categories/admin/categories/${id}`, data);
@@ -82,7 +70,6 @@ const CategoryList = () => {
 
   return (
     <AdminLayout>
-      {/* Category Section */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">Categories</h1>
         <button
@@ -112,9 +99,7 @@ const CategoryList = () => {
             {categories.map((cat) => (
               <tr key={cat._id}>
                 <td className="px-6 py-4 text-sm text-gray-800">{cat.name}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {cat.description}
-                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">{cat.description}</td>
                 <td className="px-6 py-4 flex justify-center gap-2">
                   <button
                     onClick={() => handleEdit(cat)}
@@ -135,59 +120,10 @@ const CategoryList = () => {
         </table>
       </div>
 
-      {/* Products Section */}
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Products</h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-200 rounded-lg shadow-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600 uppercase tracking-wider border-b">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600 uppercase tracking-wider border-b">
-                Price
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600 uppercase tracking-wider border-b">
-                Category
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600 uppercase tracking-wider border-b">
-                Brand
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600 uppercase tracking-wider border-b">
-                Description
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {products.map((prod) => (
-              <tr key={prod._id}>
-                <td className="px-6 py-4 text-sm text-gray-800">{prod.name}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  ₹{prod.price}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {prod.categoryId?.name || "N/A"}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {prod.brand || "-"}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {prod.description}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Add Category Modal */}
       {show && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">
-              Add Category
-            </h2>
-
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Add Category</h2>
             <input
               type="text"
               value={name}
@@ -202,7 +138,6 @@ const CategoryList = () => {
               placeholder="Description"
               className="w-full mb-4 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
             <div className="flex justify-end gap-3">
               <button
                 onClick={addCategory}
@@ -221,14 +156,10 @@ const CategoryList = () => {
         </div>
       )}
 
-      {/* Edit Category Modal */}
       {edit && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">
-              Edit Category
-            </h2>
-
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Edit Category</h2>
             <input
               type="text"
               value={name}
@@ -243,7 +174,6 @@ const CategoryList = () => {
               placeholder="Description"
               className="w-full mb-4 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
             <div className="flex justify-end gap-3">
               <button
                 onClick={editCategory}

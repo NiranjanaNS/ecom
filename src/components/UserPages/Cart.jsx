@@ -11,23 +11,22 @@ const Cart = () => {
   const [notLoggedIn, setNotLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch cart
+  // Fetch cart from backend
   const fetchCart = async () => {
     try {
-      console.log("Fetching cart...");
       const { data } = await Axios.get("/cart", { withCredentials: true });
-      console.log("Cart data:", data);
-      if (data.items && data.items.length > 0) {
+      if (data.cart) {
         setCart({
-          items: data.items[0].items || [],
-          total: data.items[0].total || 0,
+          items: data.cart.items || [],
+          total: data.cart.total || 0,
         });
       } else {
         setCart({ items: [], total: 0 });
       }
     } catch (err) {
       console.error("Error fetching cart:", err);
-      if (err.response?.status === 401 || err.response?.status === 403) setNotLoggedIn(true);
+      if (err.response?.status === 401 || err.response?.status === 403)
+        setNotLoggedIn(true);
       setCart({ items: [], total: 0 });
     } finally {
       setLoading(false);
@@ -39,12 +38,12 @@ const Cart = () => {
   }, []);
 
   // Update item quantity
-  const updateQuantity = async (item, change) => {
+  const updateQuantity = async (item, newQuantity) => {
+    if (newQuantity <= 0) return;
     try {
-      console.log(`Updating cart item ${item._id} by ${change}`);
       await Axios.put(
-        `/cart/${item._id}`,
-        { quantity: change },
+        `/cart/${item.prodId}`,
+        { quantity: newQuantity },
         { withCredentials: true }
       );
       fetchCart();
@@ -55,14 +54,8 @@ const Cart = () => {
     }
   };
 
-  const decreaseQuantity = (item) => {
-    if (item.quantity <= 1) return;
-    updateQuantity(item, item.quantity - 1);
-  };
-
-  const increaseQuantity = (item) => {
-    updateQuantity(item, item.quantity + 1);
-  };
+  const decreaseQuantity = (item) => updateQuantity(item, item.quantity - 1);
+  const increaseQuantity = (item) => updateQuantity(item, item.quantity + 1);
 
   // Place order
   const placeOrder = async () => {
@@ -80,6 +73,7 @@ const Cart = () => {
     }
   };
 
+  // Get image URL
   const getImageUrl = (image) => {
     if (!image) return "/default-product.png";
     const img = Array.isArray(image) ? image[0] : image;
@@ -95,8 +89,18 @@ const Cart = () => {
           <h2 className="text-xl font-bold">You need to login</h2>
           <p className="text-gray-600 text-center">Please login to view your cart</p>
           <div className="flex gap-4 mt-4">
-            <button onClick={() => navigate("/login")} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Login</button>
-            <button onClick={() => navigate(-1)} className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Back</button>
+            <button
+              onClick={() => navigate("/login")}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Login
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+            >
+              Back
+            </button>
           </div>
         </div>
       </UserLayout>
@@ -112,31 +116,61 @@ const Cart = () => {
           <h1 className="text-2xl font-bold mb-6 text-center">Your Cart</h1>
 
           {cart.items.map((item) => (
-            <div key={item._id} className="flex flex-col md:flex-row justify-between items-center border-b py-4">
+            <div
+              key={item.prodId}
+              className="flex flex-col md:flex-row justify-between items-center border-b py-4"
+            >
               <div className="flex items-center gap-4">
-                <img src={getImageUrl(item.image)} alt={item.productName} className="w-20 h-20 object-cover rounded" />
+                <img
+                  src={getImageUrl(item.image)}
+                  alt={item.productName}
+                  className="w-20 h-20 object-cover rounded"
+                />
                 <div>
                   <h2 className="font-semibold">{item.productName}</h2>
                   <p className="text-gray-600">Price: ₹{item.price}</p>
-                  <p className="text-gray-500 text-sm">Subtotal: ₹{item.subtotal || item.price * item.quantity}</p>
+                  <p className="text-gray-500 text-sm">
+                    Subtotal: ₹{item.subtotal || item.price * item.quantity}
+                  </p>
                 </div>
               </div>
+
               <div className="flex items-center gap-2 mt-2 md:mt-0">
-                <button onClick={() => decreaseQuantity(item)} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">-</button>
+                <button
+                  onClick={() => decreaseQuantity(item)}
+                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  -
+                </button>
                 <span className="px-3">{item.quantity}</span>
-                <button onClick={() => increaseQuantity(item)} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">+</button>
+                <button
+                  onClick={() => increaseQuantity(item)}
+                  className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                >
+                  +
+                </button>
               </div>
             </div>
           ))}
 
           <div className="mt-6 flex flex-col md:flex-row justify-between items-center">
             <p className="text-xl font-bold">Total: ₹{cart.total}</p>
-            <button onClick={placeOrder} disabled={cart.items.length === 0} className={`mt-4 md:mt-0 px-6 py-2 rounded ${cart.items.length === 0 ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"} text-white`}>
+            <button
+              onClick={placeOrder}
+              disabled={cart.items.length === 0}
+              className={`mt-4 md:mt-0 px-6 py-2 rounded ${
+                cart.items.length === 0
+                  ? "bg-gray-400"
+                  : "bg-blue-600 hover:bg-blue-700"
+              } text-white`}
+            >
               Place Order
             </button>
           </div>
 
-          {msg && <p className="mt-4 text-center text-sm text-green-600 font-medium">{msg}</p>}
+          {msg && (
+            <p className="mt-4 text-center text-sm text-green-600 font-medium">{msg}</p>
+          )}
         </div>
       </div>
     </UserLayout>
