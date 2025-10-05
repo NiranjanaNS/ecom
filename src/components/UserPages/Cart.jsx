@@ -11,15 +11,15 @@ const Cart = () => {
   const [notLoggedIn, setNotLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch cart from backend
+  // Fetch cart
   const fetchCart = async () => {
     try {
       const { data } = await Axios.get("/cart", { withCredentials: true });
-      const cartData = data.items?.[0] || { items: [], total: 0 };
-      setCart({ items: cartData.items || [], total: cartData.total || 0 });
+      setCart({ items: data.items || [], total: data.total || 0 });
     } catch (err) {
-      if (err.response?.status === 401 || err.response?.status === 403)
+      if (err.response?.status === 401 || err.response?.status === 403) {
         setNotLoggedIn(true);
+      }
       setCart({ items: [], total: 0 });
     } finally {
       setLoading(false);
@@ -30,7 +30,7 @@ const Cart = () => {
     fetchCart();
   }, []);
 
-  // Update quantity or remove if zero
+  // Update quantity 
   const updateQuantity = async (item, newQty) => {
     try {
       if (newQty <= 0) {
@@ -39,7 +39,7 @@ const Cart = () => {
         await Axios.put(`/cart/${item.prodId}`, { quantity: newQty }, { withCredentials: true });
       }
       fetchCart();
-    } catch (err) {
+    } catch {
       setMsg("Failed to update cart");
       setTimeout(() => setMsg(""), 2000);
     }
@@ -57,13 +57,14 @@ const Cart = () => {
       setCart({ items: [], total: 0 });
       setTimeout(() => setMsg(""), 3000);
       navigate("/orders");
-    } catch {
-      setMsg("Failed to place order");
+    } catch (err) {
+      console.error(err.response || err);
+      setMsg(err.response?.data?.message || "Failed to place order");
       setTimeout(() => setMsg(""), 3000);
     }
   };
 
-  // Get proper image URL
+  // Get image
   const getImageUrl = (image) => {
     if (!image) return "/default-product.png";
     const img = Array.isArray(image) ? image[0] : image;
@@ -78,12 +79,18 @@ const Cart = () => {
         <div className="p-6 max-w-md mx-auto bg-white rounded shadow text-center mt-6">
           <h2 className="text-xl font-bold mb-2">Please Login</h2>
           <p className="text-gray-600 mb-4">You need to login to view your cart</p>
-          <button onClick={() => navigate("/login")} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Login</button>
+          <button
+            onClick={() => navigate("/login")}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Login
+          </button>
         </div>
       </UserLayout>
     );
 
-  if (!cart.items.length) return <p className="p-6 text-center text-gray-500">Your cart is empty</p>;
+  if (!cart.items.length)
+    return <p className="p-6 text-center text-gray-500">Your cart is empty</p>;
 
   return (
     <UserLayout>
@@ -91,26 +98,50 @@ const Cart = () => {
         <h1 className="text-2xl font-bold mb-6">Your Cart</h1>
 
         {cart.items.map((item) => (
-          <div key={item._id} className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded shadow mb-4 w-full max-w-3xl">
+          <div
+            key={item.prodId}
+            className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded shadow mb-4 w-full max-w-3xl"
+          >
             <div className="flex items-center gap-4">
-              <img src={getImageUrl(item.image)} alt={item.productName} className="w-20 h-20 object-cover rounded" />
+              <img
+                src={getImageUrl(item.image)}
+                alt={item.productName}
+                className="w-20 h-20 object-cover rounded"
+              />
               <div>
                 <h2 className="font-semibold">{item.productName}</h2>
                 <p className="text-gray-600">Price: ₹{item.price}</p>
-                <p className="text-gray-500 text-sm">Subtotal: ₹{item.subtotal || item.price * item.quantity}</p>
+                <p className="text-gray-500 text-sm">
+                  Subtotal: ₹{item.price * item.quantity}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2 mt-4 md:mt-0">
-              <button onClick={() => decrease(item)} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">-</button>
+              <button
+                onClick={() => decrease(item)}
+                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                -
+              </button>
               <span>{item.quantity}</span>
-              <button onClick={() => increase(item)} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">+</button>
+              <button
+                onClick={() => increase(item)}
+                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                +
+              </button>
             </div>
           </div>
         ))}
 
         <div className="flex justify-between items-center bg-white p-4 rounded shadow w-full max-w-3xl mt-4">
           <p className="text-xl font-bold">Total: ₹{cart.total}</p>
-          <button onClick={placeOrder} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Place Order</button>
+          <button
+            onClick={placeOrder}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+          >
+            Place Order
+          </button>
         </div>
 
         {msg && <p className="mt-4 text-green-600 font-medium">{msg}</p>}
