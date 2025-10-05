@@ -2,23 +2,26 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Axios from "../../Axios";
 import UserLayout from "../Layout/UserLayout";
-import url from "../ImagePath"; 
+
+const API_URL = "http://13.51.121.100/api"; // your backend
 
 const Cart = () => {
-  const [cart, setCart] = useState({ items: [], total: 0 });
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState([]);
+  const [total, setTotal] = useState(0);
   const [msg, setMsg] = useState("");
-  const [notLoggedIn, setNotLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch cart
+  // fetch cart items
   const fetchCart = async () => {
     try {
-      const { data } = await Axios.get("/cart", { withCredentials: true });
-      setCart({ items: data.items || [], total: data.total || 0 });
+      const { data } = await Axios.get(`${API_URL}/cart`, { withCredentials: true });
+      const cartItems = Array.isArray(data.items) ? data.items : [];
+      setItems(cartItems);
+      setTotal(cartItems.reduce((sum, i) => sum + (i.price || 0) * (i.quantity || 0), 0));
     } catch (err) {
-      if (err.response?.status === 403) setNotLoggedIn(true);
-      setCart({ items: [], total: 0 });
+      setItems([]);
+      setMsg(err.response?.data?.message || "Error loading cart");
     } finally {
       setLoading(false);
     }
@@ -28,93 +31,86 @@ const Cart = () => {
     fetchCart();
   }, []);
 
-  // Update quantity
-  const updateQuantity = async (item, qty) => {
+  const updateQuantity = async (prodId, qty) => {
     try {
       if (qty <= 0) {
-        await Axios.delete(`/cart/delete/${item.prodId}`, { withCredentials: true });
+        await Axios.delete(`${API_URL}/cart/delete/${prodId}`, { withCredentials: true });
       } else {
-        await Axios.put(`/cart/${item.prodId}`, { quantity: qty }, { withCredentials: true });
+        await Axios.put(`${API_URL}/cart/${prodId}`, { quantity: qty }, { withCredentials: true });
       }
       fetchCart();
-    } catch {
-      setMsg("Failed to update cart");
-      setTimeout(() => setMsg(""), 2000);
+    } catch (err) {
+      setMsg("Failed to update quantity");
     }
   };
 
-  const increase = (item) => updateQuantity(item, item.quantity + 1);
-  const decrease = (item) => updateQuantity(item, item.quantity - 1);
-
-  // Place order
   const placeOrder = async () => {
-    if (!cart.items.length) return;
     try {
-      const { data } = await Axios.post("/orders", {}, { withCredentials: true });
+      const { data } = await Axios.post(`${API_URL}/orders`, {}, { withCredentials: true });
       setMsg(data.message || "Order placed successfully!");
-      setCart({ items: [], total: 0 });
-      setTimeout(() => setMsg(""), 3000);
+      setItems([]);
+      setTotal(0);
       navigate("/orders");
     } catch (err) {
       setMsg(err.response?.data?.message || "Failed to place order");
-      setTimeout(() => setMsg(""), 3000);
     }
-  };
-
-  // Get image
-  const getImageUrl = (image) => {
-    if (!image) return "/default-product.png";
-    return image.startsWith("http") ? image : `${url}/${image}`;
   };
 
   if (loading) return <p className="p-6 text-center">Loading cart...</p>;
 
-  if (notLoggedIn)
-    return (
-      <UserLayout>
-        <div className="p-6 text-center max-w-md mx-auto bg-white rounded shadow mt-6">
-          <h2 className="text-xl font-bold mb-2">Please Login</h2>
-          <button
-            onClick={() => navigate("/login")}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Login
-          </button>
-        </div>
-      </UserLayout>
-    );
-
-  if (!cart.items.length) return <p className="p-6 text-center text-gray-500">Cart is empty</p>;
-
   return (
     <UserLayout>
-      <div className="p-6 flex flex-col items-center min-h-screen bg-gray-100">
+      <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">Your Cart</h1>
+        {items.length === 0 && <p className="text-gray-500">Cart is empty</p>}
 
-        {cart.items.map((item) => (
-          <div key={item.prodId} className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded shadow mb-4 w-full max-w-3xl">
+        {items.map((item) => (
+          <div key={item.prodId} className="flex justify-between items-center bg-white p-4 mb-4 rounded shadow">
             <div className="flex items-center gap-4">
-              <img src={getImageUrl(item.image)} alt={item.productName} className="w-20 h-20 object-cover rounded" />
+              <img
+                src={item.image?.startsWith("http") ? item.image : `${API_URL}/uploads/${item.image}`}
+                alt={item.productName}
+                className="w-20 h-20 object-cover rounded"
+              />
               <div>
                 <h2 className="font-semibold">{item.productName}</h2>
                 <p className="text-gray-600">Price: ₹{item.price}</p>
-                <p className="text-gray-500 text-sm">Subtotal: ₹{item.price * item.quantity}</p>
+                <p className="text-gray-500 text-sm">
+                  Subtotal: ₹{(item.price || 0) * (item.quantity || 0)}
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 mt-4 md:mt-0">
-              <button onClick={() => decrease(item)} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">-</button>
-              <span>{item.quantity}</span>
-              <button onClick={() => increase(item)} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">+</button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => updateQuantity(item.prodId, (item.quantity || 0) - 1)}
+                className="px-3 py-1 bg-red-500 text-white rounded"
+              >
+                -
+              </button>
+              <span>{item.quantity || 0}</span>
+              <button
+                onClick={() => updateQuantity(item.prodId, (item.quantity || 0) + 1)}
+                className="px-3 py-1 bg-green-500 text-white rounded"
+              >
+                +
+              </button>
             </div>
           </div>
         ))}
 
-        <div className="flex justify-between items-center bg-white p-4 rounded shadow w-full max-w-3xl mt-4">
-          <p className="text-xl font-bold">Total: ₹{cart.total}</p>
-          <button onClick={placeOrder} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Place Order</button>
-        </div>
+        {items.length > 0 && (
+          <div className="flex justify-between items-center bg-white p-4 rounded shadow">
+            <p className="text-xl font-bold">Total: ₹{total}</p>
+            <button
+              onClick={placeOrder}
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+            >
+              Place Order
+            </button>
+          </div>
+        )}
 
-        {msg && <p className="mt-4 text-green-600 font-medium">{msg}</p>}
+        {msg && <p className="mt-4 text-center text-red-500">{msg}</p>}
       </div>
     </UserLayout>
   );
