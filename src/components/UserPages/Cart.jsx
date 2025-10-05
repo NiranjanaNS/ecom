@@ -75,13 +75,6 @@ const Cart = () => {
     }
   };
 
-  // Get image
-  const getImageUrl = (image) => {
-    if (!image) return "/default-product.png"; 
-    return image.startsWith("http") ? image : `${url}/${image}`;
-  };
-
-
   if (loading) return <p className="p-6 text-center">Loading cart...</p>;
 
   if (notLoggedIn)
@@ -117,7 +110,10 @@ const Cart = () => {
           >
             <div className="flex items-center gap-4">
               <img
-                src={getImageUrl(item.image)}
+                src={item.image && item.image.length > 0
+                    ? `${url}/${item.image[0]}`
+                    : "/placeholder.png",
+              }
                 alt={item.productName}
                 className="w-20 h-20 object-cover rounded"
               />

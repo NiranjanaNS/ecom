@@ -14,12 +14,11 @@ const UserProfile = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fetch user profile from backend
+  // Fetch user profile 
   const fetchUser = async () => {
     try {
       const { data } = await Axios.get("/user/profile", { withCredentials: true });
 
-      // Accept both { user: {...} } or just user object
       const fetchedUser = data.user || data;
 
       if (!fetchedUser || Object.keys(fetchedUser).length === 0) {
@@ -114,7 +113,7 @@ const UserProfile = () => {
                 preview ||
                 (profilePic
                   ? profilePic.startsWith("uploads/")
-                    ? `${url}/${profilePic}` // path from server
+                    ? `${url}/${profilePic}` 
                     : `${url}/${profilePic}`
                   : img)
               }
