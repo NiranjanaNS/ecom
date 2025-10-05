@@ -77,10 +77,10 @@ const Cart = () => {
 
   // Get image
   const getImageUrl = (image) => {
-    if (!image) return;
-    const img = Array.isArray(image) ? image[0] : image;
-    return img.startsWith("http") ? img : `${url}/${img}`;
+    if (!image) return "/default-product.png"; 
+    return image.startsWith("http") ? image : `${url}/${image}`;
   };
+
 
   if (loading) return <p className="p-6 text-center">Loading cart...</p>;
 
