@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Axios from "../../Axios";
 import UserLayout from "../Layout/UserLayout";
-import url from "../ImagePath";
 
 const Cart = () => {
   const [cart, setCart] = useState({ items: [], total: 0 });
@@ -68,20 +67,13 @@ const Cart = () => {
         setCart({ items: [], total: 0 });
         setTimeout(() => setMsg(""), 3000);
         navigate("/orders");
-        console.log(data, data.message)
+        console.log(data, data.message);
       } catch {
         setMsg("Failed to place order");
         setTimeout(() => setMsg(""), 3000);
       }
     }
   };
-
-  // Get image
-  const getImageUrl = (image) => {
-    if (!image) return "/default-product.png"; 
-    return image.startsWith("http") ? image : `${url}/${image}`;
-  };
-
 
   if (loading) return <p className="p-6 text-center">Loading cart...</p>;
 
@@ -116,20 +108,14 @@ const Cart = () => {
             key={item._id}
             className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded shadow mb-4 w-full max-w-3xl"
           >
-            <div className="flex items-center gap-4">
-              <img
-                src={getImageUrl(item.image)}
-                alt={item.productName}
-                className="w-20 h-20 object-cover rounded"
-              />
-              <div>
-                <h2 className="font-semibold">{item.productName}</h2>
-                <p className="text-gray-600">Price: ₹{item.price}</p>
-                <p className="text-gray-500 text-sm">
-                  Subtotal: ₹{item.subtotal || item.price * item.quantity}
-                </p>
-              </div>
+            <div>
+              <h2 className="font-semibold">{item.productName}</h2>
+              <p className="text-gray-600">Price: ₹{item.price}</p>
+              <p className="text-gray-500 text-sm">
+                Subtotal: ₹{item.subtotal || item.price * item.quantity}
+              </p>
             </div>
+
             <div className="flex items-center gap-2 mt-4 md:mt-0">
               <button
                 onClick={() => decrease(item)}
