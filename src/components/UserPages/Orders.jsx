@@ -54,7 +54,7 @@ const Orders = () => {
   const getImageUrl = (image) => {
     if (!image) return "/default-product.png";
     const img = Array.isArray(image) ? image[0] : image;
-    return img.startsWith("http") ? img : `${url}/${img}`;
+    return `${url}/${img}`;
   };
 
   if (loading)
