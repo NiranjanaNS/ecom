@@ -59,7 +59,7 @@ const Cart = () => {
     if (!notLoggedIn) {
       try {
         const { data } = await Axios.post(
-          "/orders",
+          "/orders/add",
           {},
           { withCredentials: true }
         );
