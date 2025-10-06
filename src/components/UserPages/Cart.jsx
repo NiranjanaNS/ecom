@@ -46,7 +46,7 @@ const Cart = () => {
       }
       fetchCart();
     } catch (err) {
-      setMsg("Failed to update cart");
+      setMsg("Failed to update cart", err);
       setTimeout(() => setMsg(""), 2000);
     }
   };
@@ -68,6 +68,7 @@ const Cart = () => {
         setCart({ items: [], total: 0 });
         setTimeout(() => setMsg(""), 3000);
         navigate("/orders");
+        console.log(data, data.message)
       } catch {
         setMsg("Failed to place order");
         setTimeout(() => setMsg(""), 3000);
